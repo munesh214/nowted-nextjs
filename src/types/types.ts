@@ -26,8 +26,8 @@ export interface FetchNotesParams {
   favorite?: boolean;
   deleted?: boolean;
   folderId?: string;
-  page?: number;
-  limit?: number;
+  page: 1;
+  limit: 10;
   search?: string;
 }
 

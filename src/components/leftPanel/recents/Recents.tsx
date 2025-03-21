@@ -9,8 +9,6 @@ const RecentNoteStyledButton = styled(Button)({
     justifyContent: "start",
     alignItems: "center",
     gap: "8px",
-    borderRadius: "none",
-    backgroundColor: "#0a0a0a",
     color: "white",
     width: "100%",
     padding: "8px 16px",
@@ -32,7 +30,7 @@ const Recents = () => {
 
     return (
         <Stack gap={0.5}>
-            <Typography color="white" variant="body2" fontWeight={600} px={2}>Recents</Typography>
+            <Typography color="white" variant="body2" fontWeight={600} px={2.5}>Recents</Typography>
 
             <Box>
                 {data?.map((note) => (

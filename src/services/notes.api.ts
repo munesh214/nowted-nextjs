@@ -16,6 +16,7 @@ export const getNotes = async (params: FetchNotesParams):Promise<Note[]> => {
     const response = await apiClient.get("/notes", { params });
     return response.data.notes;
   } catch (error) {
+    console.log("This runs");
     console.error(error);
     throw new Error("Unable to fetch Notes");
   }

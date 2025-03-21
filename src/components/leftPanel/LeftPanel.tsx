@@ -1,17 +1,29 @@
-import { Box } from "@mui/material"
+import { Box, Stack } from "@mui/material";
+import SideBarHeader from "./sideBarHeader/SideBarHeader";
+import Recents from "./recents/Recents";
+import More from "./more/More";
+import Folders from "./folders/Folders";
 
-import SideBarHeader from "./sideBarHeader/SideBarHeader"
-import Recents from "./recents/Recents"
 
 const LeftPanel = () => {
-    return (
-        <>
-            <Box height="100%" width="25%" display="flex" flexDirection="column" gap={2} sx={{bgcolor:"#0a0a0a"}}>
-                <SideBarHeader />
-                <Recents />
-            </Box>
-        </>
-    )
-}
+  return (
+    <Stack 
+      direction="column" 
+      width="25%"
+      height="100vh"  // Full viewport height
+      bgcolor="#121212"
+      gap={2}
+    >
+      {/* SideBarHeader, Recents, More take only needed space */}
+      <SideBarHeader />
+      <Recents />
+      {/* Folders takes the remaining space and becomes scrollable */}
+      <Box flex={1} overflow="auto">
+        <Folders />
+      </Box>
+      <More />
+    </Stack>
+  );
+};
 
-export default LeftPanel
+export default LeftPanel;
