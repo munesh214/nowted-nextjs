@@ -1,46 +1,75 @@
-import { Box, Stack, Typography, Card, CardActionArea, CardContent } from "@mui/material";
+"use client";
+import { useState, useEffect } from "react";
+import { Box, Stack, Typography, Card, CardActionArea, CardContent, Button } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getNotes } from "@/services/notes.api";
-
-// import { use } from "react";
+import { FetchNotesParams, Note } from "@/types/types";
 
 const NotesPanel = () => {
-    const route = useRouter()
-    const { folderId }: { folderId: string } = useParams();
-    console.log(folderId);
+    const router = useRouter();
+    const { category }: { category: string } = useParams();
+    const [page, setPage] = useState(1);
+    const [allNotes, setAllNotes] = useState<Note[]>([]); // Store all notes
+    const limit = 10;
 
-    const { data, isPending } = useQuery({
-        queryKey: ["notes", folderId],
-        queryFn: () => getNotes({ page: 1, limit: 10, folderId: folderId }),
-            });
+    // Function to fetch notes
+    const fetchNotesByCategory = async (pageParam: number) => {
+        const params: FetchNotesParams = { page: pageParam, limit };
+        if (category === "favorite") params.favorite = true;
+        else if (category === "archive") params.archived = true;
+        else if (category === "trash") params.deleted = true;
+        else params.folderId = category;
+        return getNotes(params);
+    };
 
-    if (isPending) return <p>Loading...</p>;
+    // Fetch notes when category or page changes
+    const { data, isFetching } = useQuery({
+        queryKey: ["notes", category, page],
+        queryFn: () => fetchNotesByCategory(page),
+    });
+
+    // Update allNotes state when new data is fetched
+    useEffect(() => {
+        if (data) {
+            setAllNotes((prevNotes) => [...prevNotes, ...data]); // Append new notes
+        }
+    }, [data]);
+
+    const loadMore = () => {
+        if (!isFetching && data?.length === limit) {
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
 
     return (
         <Stack height="100vh" sx={{ overflow: "auto" }} padding="20px" gap={1.5}>
             <Typography variant="h6" fontWeight={600} pt="10px" color="white">
-                Folder Name
+                {category === "favorite"
+                    ? "Favorite Notes"
+                    : category === "archive"
+                        ? "Archived Notes"
+                        : category === "trash"
+                            ? "Trash"
+                            : "Folder Notes"}
             </Typography>
 
             <Box sx={{ overflow: "auto" }}>
-                {data?.map((note) => (
+                {allNotes.map((note: Note, index: number) => (
                     <Card
-                        key={note.id}
-                        onClick={()=> route.push(`/${folderId}/8724297-sdfjs83`)}
+                        key={index}
+                        onClick={() => router.push(`/${category}/${note.id}`)}
                         sx={{
                             backgroundColor: "grey.800",
                             color: "white",
                             borderRadius: "0px",
                             boxShadow: "none",
-                            "&:hover": {
-                                backgroundColor: "grey.700",
-                            },
+                            "&:hover": { backgroundColor: "grey.700" },
                             mb: 1,
                         }}
                     >
                         <CardActionArea>
-                            <CardContent>
+                            <CardContent>   
                                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
                                     {note.title}
                                 </Typography>
@@ -57,9 +86,21 @@ const NotesPanel = () => {
                         </CardActionArea>
                     </Card>
                 ))}
+
+                <Button
+                    fullWidth
+                    variant="contained"
+                    onClick={loadMore}
+                    style={{ display: data && data.length === limit ? "block" : "none" }}
+                    sx={{ mt: 2 }}
+                >
+                    {isFetching ? "Loading..." : "Load More"}
+                </Button>
             </Box>
+
         </Stack>
     );
 };
 
 export default NotesPanel;
+

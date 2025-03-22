@@ -26,6 +26,7 @@ const NoteDetails = () => {
                 </Box>
 
                 <Typography variant="body2" sx={{ color: "white", fontWeight: 600 }}>Personal</Typography>
+
             </Stack>
         </Box>
     );
