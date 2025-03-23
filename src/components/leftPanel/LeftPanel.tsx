@@ -18,7 +18,7 @@ const LeftPanel = () => {
       <SideBarHeader />
       <Recents />
       {/* Folders takes the remaining space and becomes scrollable */}
-      <Box flex={1} overflow="auto">
+      <Box overflow="auto">
         <Folders />
       </Box>
       <More />

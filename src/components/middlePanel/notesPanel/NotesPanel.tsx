@@ -1,12 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useContext } from "react";
 import { Box, Stack, Typography, Card, CardActionArea, CardContent, Button } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getNotes } from "@/services/notes.api";
 import { FetchNotesParams, Note } from "@/types/types";
+import { RefetchNotesContext } from "@/context/RefetchNotesContext";
 
 const NotesPanel = () => {
+    const context = useContext(RefetchNotesContext);
     const router = useRouter();
     const { category }: { category: string } = useParams();
     const [page, setPage] = useState(1);
@@ -24,8 +26,8 @@ const NotesPanel = () => {
     };
 
     // Fetch notes when category or page changes
-    const { data, isFetching } = useQuery({
-        queryKey: ["notes", category, page],
+    const { data, isFetching} = useQuery({
+        queryKey: ["notes", category, page,context!.trigger],
         queryFn: () => fetchNotesByCategory(page),
     });
 
@@ -98,6 +100,8 @@ const NotesPanel = () => {
                     {isFetching ? "Loading..." : "Load More"}
                 </Button>
             </Box>
+
+
 
         </Stack>
     );

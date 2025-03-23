@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,useContext } from "react";
 import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Options from "./Options";
@@ -8,7 +8,7 @@ import NoteDetails from "./NoteDetails";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getNoteById, updateNote } from "@/services/notes.api"; // Ensure you have an API function to update the note
-
+import { RefetchNotesContext } from "@/context/RefetchNotesContext";
 // Styled Title Field
 const CustomTextField = styled(TextField)({
   width: "100%",
@@ -53,6 +53,7 @@ const CustomTextArea = styled(TextField)({
 });
 
 const NoteEdit = () => {
+  const context = useContext(RefetchNotesContext);
   const { noteId,category }: { noteId: string , category:string} = useParams();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -60,6 +61,7 @@ const NoteEdit = () => {
   const { data: noteData, isPending } = useQuery({
     queryKey: ["noteData", category,noteId],
     queryFn: () => getNoteById(noteId),
+    staleTime: 1000 * 60 * 5,
   });
 
   const [noteTitle, setNoteTitle] = useState("");
@@ -94,6 +96,7 @@ const NoteEdit = () => {
       };
 
       await updateNote(noteId, updatedNote); // Make API call to update the note
+      context!.setTrigger!((p:boolean)=>!p);
     }, 1500);
   };
 

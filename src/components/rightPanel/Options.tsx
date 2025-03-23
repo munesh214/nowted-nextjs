@@ -6,10 +6,13 @@ import { Box, IconButton, Avatar, Menu, MenuItem, Tooltip, Divider, ListItemIcon
 import DeleteIcon from '@mui/icons-material/Delete';
 import StarIcon from '@mui/icons-material/Star';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import { updateNote } from '@/services/notes.api';
+import { deleteNote, updateNote } from '@/services/notes.api';
 import { Note } from '@/types/types';
+import { useParams, useRouter } from 'next/navigation';
 
 const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, noteTitle:string, noteContent:string}) => {
+  const route = useRouter();
+  const {category} = useParams()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -28,6 +31,8 @@ const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, no
     };
 
     await updateNote(noteData!.id,updatedNote);
+
+    if(category === "favorite") route.push(`/favorite`);
   };
 
   const handleChangeArchiveStatus = async () => {
@@ -42,6 +47,13 @@ const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, no
 
     await updateNote(noteData!.id,updatedNote);
     alert(!isArchive ? "Note Successfully Archived!" : "Note Successfully Unarchived!");
+  };
+
+  const handleDeleteNoteFunction = async () => {
+    if (noteData?.id && confirm("Are you sure you want to delete this note?")) {
+      await deleteNote(noteData.id);
+      alert("Note Deleted Successfully!");
+    }
   };
 
 
@@ -108,7 +120,7 @@ const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, no
           <ListItemIcon>
             <StarIcon fontSize="small" />
           </ListItemIcon>
-          {isFavorite ? "Unfavorite" : "favorite" }
+          {isFavorite ? "Unfavorite" : "Favorite" }
         </MenuItem>
         <MenuItem onClick={handleChangeArchiveStatus}>
           <ListItemIcon>
@@ -117,7 +129,7 @@ const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, no
           {isArchive ? "Unarchive" : "Archive"}
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleDeleteNoteFunction}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>

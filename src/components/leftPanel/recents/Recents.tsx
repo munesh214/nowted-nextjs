@@ -3,6 +3,7 @@ import { styled } from "@mui/system";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRecentsNotes } from "@/services/notes.api";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { useRouter } from "next/navigation";
 
 const RecentNoteStyledButton = styled(Button)({
     display: "flex",
@@ -20,6 +21,8 @@ const RecentNoteStyledButton = styled(Button)({
 });
 
 const Recents = () => {
+    const route = useRouter();
+
     const { data, isLoading, error } = useQuery({
         queryKey: ["recentNotes"],
         queryFn: fetchRecentsNotes
@@ -34,7 +37,7 @@ const Recents = () => {
 
             <Box>
                 {data?.map((note) => (
-                    <RecentNoteStyledButton key={note.id} onClick={() => console.log("Clicked:", note.id)}>
+                    <RecentNoteStyledButton key={note.id} onClick={() => route.push(`/${note.folder.id}/${note.id}`)}>
                         <DescriptionIcon />
                         <Typography variant="body2">{note.title}</Typography>
                     </RecentNoteStyledButton>

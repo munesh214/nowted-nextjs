@@ -1,4 +1,5 @@
-import { Box, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
+"use client"
+import { Box, IconButton, List, ListItemButton, ListItemText, Stack, Typography } from "@mui/material";
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -31,7 +32,7 @@ const Folders = () => {
       </Box>
 
       {/* Scrollable List */}
-      <Box flex={1} overflow="auto">
+      <Box overflow="auto">
         <List disablePadding>
           {data?.map((folder: { id: string, name: string }) => (
             <ListItemButton
@@ -39,11 +40,10 @@ const Folders = () => {
               sx={{ paddingLeft: "20px", paddingRight: "20px", paddingY: "4px" }}
               onClick={() => route.push(`/${folder.id}`)}
             >
-              <ListItemIcon>
-                <FolderIcon sx={{ color: "white" }} />
-              </ListItemIcon>
+              <FolderIcon sx={{ color: "white" }} />
 
-              <ListItemText primary={folder.name} />
+
+              <ListItemText primary={folder.name} sx={{ paddingLeft: "10px" }} />
 
 
               <DeleteIcon onClick={() => console.log("Delee")} sx={{ color: "white" }} />
