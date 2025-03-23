@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Options from "./Options";
 import NoteDetails from "./NoteDetails";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getNoteById, updateNote } from "@/services/notes.api"; // Ensure you have an API function to update the note
 
 // Styled Title Field
 const CustomTextField = styled(TextField)({
@@ -26,60 +29,104 @@ const CustomTextField = styled(TextField)({
 // Styled Text Area
 const CustomTextArea = styled(TextField)({
   width: "100%",
-  flexGrow: 1, // Ensures it takes up remaining space
+  flexGrow: 1,
   display: "flex",
-  
+  overflow: "hidden",
   "& .MuiInputBase-root": {
     backgroundColor: "transparent",
     display: "flex",
     flexGrow: 1,
-    alignItems: "start"
+    alignItems: "start",
+    overflow: "auto",
   },
-
   "& .MuiInputBase-input": {
     color: "white",
     fontSize: "18px",
     fontWeight: 400,
-    height: "100% !important", // Fills container
-    
-    maxHeight: "100%", // Prevents content overflow
-    // scrollbarWidth: "thin", // Firefox scrollbar styling
+    height: "100% !important",
+    maxHeight: "100%",
+    overflow: "auto",
   },
-
   "& .MuiInput-underline:before, & .MuiInput-underline:hover:not(.Mui-disabled):before": {
     borderBottom: "none",
   },
 });
 
 const NoteEdit = () => {
-  // State for the title field
-  const [inputValue, setInputValue] = useState("Small");
+  const { noteId,category }: { noteId: string , category:string} = useParams();
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Handler for input changes
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-    console.log("Input value:", event.target.value);
+  // Fetch note data
+  const { data: noteData, isPending } = useQuery({
+    queryKey: ["noteData", category,noteId],
+    queryFn: () => getNoteById(noteId),
+  });
+
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+
+  // Sync state when data is fetched
+  useEffect(() => {
+    if (noteData) {
+      setNoteTitle(noteData.title || "");
+      setNoteContent(noteData.content || "");
+    }
+  }, [noteData]);
+
+  if (isPending) return <p>Loading...</p>;
+
+  // 🔹 Debounced update function
+  const handleUpdate = (updatedTitle: string, updatedContent: string) => {
+    setNoteTitle(updatedTitle);
+    setNoteContent(updatedContent);
+
+    // Clear existing timer
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    // Set new timer
+    debounceTimer.current = setTimeout(async () => {
+      if (!noteData) return;
+
+      const updatedNote = {
+        ...noteData,
+        title: updatedTitle,
+        content: updatedContent,
+      };
+
+      await updateNote(noteId, updatedNote); // Make API call to update the note
+    }, 1500);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleUpdate(event.target.value, noteContent);
+  };
+
+  const handleContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleUpdate(noteTitle, event.target.value);
   };
 
   return (
-    <Stack padding={3.5} width="48%" height="100vh" gap="20px">
-      {/* Title + Options (natural height) */}
+    <Stack padding={3.5} width="48%" height="100vh" gap="30px">
       <Box width="100%" display="flex">
         <CustomTextField
-          value={inputValue}
-          onChange={handleInputChange}
+          value={noteTitle}
+          onChange={handleTitleChange}
           variant="standard"
           size="small"
         />
-        <Options />
+        <Options noteData={noteData} noteTitle={noteTitle} noteContent={noteContent} />
       </Box>
 
-      {/* Note Details (natural height) */}
-      <NoteDetails />
+      <NoteDetails noteData={noteData} />
 
-      {/* Expandable Text Area */}
       <Box flexGrow={1} width="100%" display="flex">
-        <CustomTextArea variant="standard" size="small" multiline />
+        <CustomTextArea
+          variant="standard"
+          size="small"
+          multiline
+          value={noteContent}
+          onChange={handleContentChange}
+        />
       </Box>
     </Stack>
   );

@@ -3,11 +3,47 @@
 
 import React, { useState } from 'react';
 import { Box, IconButton, Avatar, Menu, MenuItem, Tooltip, Divider, ListItemIcon } from '@mui/material';
-import { PersonAdd, Settings, Logout } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import StarIcon from '@mui/icons-material/Star';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import { updateNote } from '@/services/notes.api';
+import { Note } from '@/types/types';
 
-const Options = () => {
+const Options = ({noteData,noteTitle,noteContent}:{noteData:Note | undefined, noteTitle:string, noteContent:string}) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  const [isFavorite,setIsFavorite] = useState(noteData!.isFavorite);
+  const [isArchive,setIsArchive] = useState(noteData!.isArchived);
+
+
+  const handleChangeFavoriteStatus = async () => {
+    setIsFavorite((prev:boolean) => !prev);
+    const updatedNote = {
+      folderId: noteData!.folder.id,
+      title:noteTitle,
+      content:noteContent,
+      isArchived: isArchive,
+      isFavorite: !isFavorite,
+    };
+
+    await updateNote(noteData!.id,updatedNote);
+  };
+
+  const handleChangeArchiveStatus = async () => {
+    setIsArchive((prev:boolean) => !prev);
+    const updatedNote = {
+      folderId: noteData!.folder.id,
+      title:noteTitle,
+      content:noteContent,
+      isFavorite: isFavorite,
+      isArchived: !isArchive,
+    };
+
+    await updateNote(noteData!.id,updatedNote);
+    alert(!isArchive ? "Note Successfully Archived!" : "Note Successfully Unarchived!");
+  };
+
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -67,30 +103,25 @@ const Options = () => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={handleClose}>
-          <Avatar /> Profile
+        
+        <MenuItem onClick={handleChangeFavoriteStatus}>
+          <ListItemIcon>
+            <StarIcon fontSize="small" />
+          </ListItemIcon>
+          {isFavorite ? "Unfavorite" : "favorite" }
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <Avatar /> My account
+        <MenuItem onClick={handleChangeArchiveStatus}>
+          <ListItemIcon>
+            <InventoryIcon fontSize="small" />
+          </ListItemIcon>
+          {isArchive ? "Unarchive" : "Archive"}
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>
-            <PersonAdd fontSize="small" />
+            <DeleteIcon fontSize="small" />
           </ListItemIcon>
-          Add another account
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Logout
+          Trash
         </MenuItem>
       </Menu>
     </Box>

@@ -32,9 +32,10 @@ const NotesPanel = () => {
     // Update allNotes state when new data is fetched
     useEffect(() => {
         if (data) {
-            setAllNotes((prevNotes) => [...prevNotes, ...data]); // Append new notes
+            setAllNotes((prevNotes) =>page === 1 ? data : [...prevNotes, ...data]); // Append new notes
         }
-    }, [data]);
+
+    }, [data,page]);
 
     const loadMore = () => {
         if (!isFetching && data?.length === limit) {
