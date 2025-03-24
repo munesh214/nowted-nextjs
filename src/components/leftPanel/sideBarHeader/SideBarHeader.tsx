@@ -3,11 +3,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { createNote } from "@/services/notes.api";
-import { useContext } from "react";
-import { RefetchNotesContext } from "@/context/RefetchNotesContext";
+
+
 
 const SideBarHeader = () => {
-    const context = useContext(RefetchNotesContext);
 
     const router = useRouter();
     const { category }: { category: string } = useParams();
@@ -23,7 +22,6 @@ const SideBarHeader = () => {
                 isArchived: false,
             }),
         onSuccess: (data) => {
-            context!.setTrigger!(p=>!p)
             router.push(`/${category}/${data.id}`); // Navigate to the new note
         },
         onError: (error) => {

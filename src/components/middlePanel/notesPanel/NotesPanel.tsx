@@ -1,21 +1,19 @@
+
 "use client";
-import { useState, useEffect,useContext } from "react";
+import { useState, useEffect } from "react";
 import { Box, Stack, Typography, Card, CardActionArea, CardContent, Button } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getNotes } from "@/services/notes.api";
 import { FetchNotesParams, Note } from "@/types/types";
-import { RefetchNotesContext } from "@/context/RefetchNotesContext";
 
 const NotesPanel = () => {
-    const context = useContext(RefetchNotesContext);
     const router = useRouter();
     const { category }: { category: string } = useParams();
+    const [allNotes, setAllNotes] = useState<Note[]>([]);
+    const [folderName, setFolderName] = useState("Folder Notes");
     const [page, setPage] = useState(1);
-    const [folderName,setFolderName] = useState("Folder Notes");
-    const [allNotes, setAllNotes] = useState<Note[]>([]); // Store all notes
     const limit = 10;
-
 
     // Function to fetch notes
     const fetchNotesByCategory = async (pageParam: number) => {
@@ -27,24 +25,29 @@ const NotesPanel = () => {
         return getNotes(params);
     };
 
-    // Fetch notes when category or page changes
-    const { data, isFetching} = useQuery({
-        queryKey: ["notes", category, page,context!.trigger],
-        queryFn: () => fetchNotesByCategory(page),
+    // Fetch notes when category changes
+    const { data, isFetching } = useQuery({
+        queryKey: ["notes", category], // Excluding `page` from queryKey
+        queryFn: () => fetchNotesByCategory(1),
     });
 
-    // Update allNotes state when new data is fetched
+    // Manage fetched data
     useEffect(() => {
         if (data) {
-            if(data.length > 0) setFolderName(data[0].folder.name);
-            setAllNotes((prevNotes) =>page === 1 ? data : [...prevNotes, ...data]); // Append new notes
+            if (data.length > 0) setFolderName(data[0].folder.name);
+            setAllNotes(data);
+            setPage(1); // Reset page when category changes
         }
+    }, [data, category]);
 
-    }, [data,page]);
-
-    const loadMore = () => {
-        if (!isFetching && data?.length === limit) {
-            setPage((prevPage) => prevPage + 1);
+    const loadMore = async () => {
+        if (!isFetching) {
+            const nextPage = page + 1;
+            const newNotes = await fetchNotesByCategory(nextPage);
+            if (newNotes.length > 0) {
+                setAllNotes((prevNotes) => [...prevNotes, ...newNotes]);
+                setPage(nextPage);
+            }
         }
     };
 
@@ -54,16 +57,16 @@ const NotesPanel = () => {
                 {category === "favorite"
                     ? "Favorite Notes"
                     : category === "archive"
-                        ? "Archived Notes"
-                        : category === "trash"
-                            ? "Trash"
-                            : folderName}
+                    ? "Archived Notes"
+                    : category === "trash"
+                    ? "Trash"
+                    : folderName}
             </Typography>
 
             <Box sx={{ overflow: "auto" }}>
-                {allNotes.map((note: Note, index: number) => (
+                {allNotes.map((note: Note) => (
                     <Card
-                        key={index}
+                        key={note.id}
                         onClick={() => router.push(`/${category}/${note.id}`)}
                         sx={{
                             backgroundColor: "grey.800",
@@ -75,7 +78,7 @@ const NotesPanel = () => {
                         }}
                     >
                         <CardActionArea>
-                            <CardContent>   
+                            <CardContent>
                                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
                                     {note.title}
                                 </Typography>
@@ -93,22 +96,14 @@ const NotesPanel = () => {
                     </Card>
                 ))}
 
-                <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={loadMore}
-                    style={{ display: data && data.length === limit ? "block" : "none" }}
-                    sx={{ mt: 2 }}
-                >
-                    {isFetching ? "Loading..." : "Load More"}
-                </Button>
+                {data && data.length === limit && (
+                    <Button fullWidth variant="contained" onClick={loadMore} sx={{ mt: 2 }}>
+                        {isFetching ? "Loading..." : "Load More"}
+                    </Button>
+                )}
             </Box>
-
-
-
         </Stack>
     );
 };
 
 export default NotesPanel;
-

@@ -10,12 +10,14 @@ import { deleteNote, updateNote } from '@/services/notes.api';
 import { Note } from '@/types/types';
 import { useParams, useRouter } from 'next/navigation';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Options = ({ noteData,
   noteTitle,
   noteContent,
   changeDlt }: { noteData: Note | undefined, noteTitle: string, noteContent: string, changeDlt: React.Dispatch<React.SetStateAction<boolean>> }) => {
 
+  const queryClient = useQueryClient();
   const route = useRouter();
   const { category } = useParams()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -34,10 +36,8 @@ const Options = ({ noteData,
       isArchived: isArchive,
       isFavorite: !isFavorite,
     };
-
     await updateNote(noteData!.id, updatedNote);
-
-    if (category === "favorite") route.push(`/favorite`);
+    if (category === "favorite") route.push(`/${noteData?.folder.id}/${noteData?.id}`);
   };
 
   const handleChangeArchiveStatus = async () => {
@@ -52,13 +52,16 @@ const Options = ({ noteData,
 
     await updateNote(noteData!.id, updatedNote);
     alert(!isArchive ? "Note Successfully Archived!" : "Note Successfully Unarchived!");
-
+    queryClient.invalidateQueries({queryKey: ["notes", category]});
+    queryClient.invalidateQueries({queryKey:["noteData",category, noteData?.id]})
     if (category === "archive") route.push(`/${noteData?.folder.id}/${noteData?.id}`);
+    else route.push(`/${category}`);
   };
 
   const handleDeleteNoteFunction = async () => {
     if (noteData?.id && confirm("Are you sure you want to delete this note?")) {
       await deleteNote(noteData.id);
+      queryClient.invalidateQueries({queryKey: ["notes", category]});
       alert("Note Deleted Successfully!");
       changeDlt(p=>!p);
     }

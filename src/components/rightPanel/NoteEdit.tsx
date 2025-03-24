@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef,useContext } from "react";
+import { useState, useEffect, useRef} from "react";
 import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Options from "./Options";
 import NoteDetails from "./NoteDetails";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { getNoteById, updateNote } from "@/services/notes.api"; // Ensure you have an API function to update the note
-import { RefetchNotesContext } from "@/context/RefetchNotesContext";
+import { getNoteById, updateNote } from "@/services/notes.api";
+import { useQueryClient } from "@tanstack/react-query";
 import Restore from "./Restore";
+
 // Styled Title Field
 const CustomTextField = styled(TextField)({
   width: "100%",
@@ -54,30 +55,32 @@ const CustomTextArea = styled(TextField)({
 });
 
 const NoteEdit = () => {
-  const context = useContext(RefetchNotesContext);
+  // const context = useContext(RefetchNotesContext);
+  const queryClient = useQueryClient();
   const { noteId,category }: { noteId: string , category:string} = useParams();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch note data
   const { data: noteData, isPending } = useQuery({
-    queryKey: ["noteData", category,noteId],
+    queryKey: ["noteData",category, noteId],
     queryFn: () => getNoteById(noteId),
   });
 
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
-  const [isDeleted, setIsDeleted] = useState<boolean>(noteData?.deletedAt === null)
+  const [isDeleted, setIsDeleted] = useState<boolean>(false)
 
   // Sync state when data is fetched
   useEffect(() => {
     if (noteData) {
       setNoteTitle(noteData.title || "");
       setNoteContent(noteData.content || "");
+      setIsDeleted(noteData.deletedAt !== null)
     }
   }, [noteData]);
 
   if (isPending) return <p>Loading...</p>;
-  if(isDeleted) return <Restore /> 
+  if(isDeleted) return <Restore setIsDeleted={setIsDeleted} /> 
 
   // 🔹 Debounced update function
   const handleUpdate = (updatedTitle: string, updatedContent: string) => {
@@ -98,7 +101,7 @@ const NoteEdit = () => {
       };
 
       await updateNote(noteId, updatedNote); // Make API call to update the note
-      context!.setTrigger!((p:boolean)=>!p);
+      queryClient.invalidateQueries({queryKey:["notes", category] });
     }, 1500);
   };
 
