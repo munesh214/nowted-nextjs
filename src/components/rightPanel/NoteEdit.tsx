@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef} from "react";
-import { Box, Stack, TextField } from "@mui/material";
+import { Box, Input, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Options from "./Options";
 import NoteDetails from "./NoteDetails";
@@ -29,7 +29,7 @@ const CustomTextField = styled(TextField)({
 });
 
 // Styled Text Area
-const CustomTextArea = styled(TextField)({
+const CustomTextArea = styled(Input)({
   width: "100%",
   flexGrow: 1,
   display: "flex",
@@ -129,14 +129,14 @@ const NoteEdit = () => {
 
       <Box flexGrow={1} width="100%" display="flex">
         <CustomTextArea
-          variant="standard"
+          // variant="standard"
           size="small"
           multiline
           value={noteContent}
           onChange={handleContentChange}
         />
       </Box>
-    </Stack>
+    </Stack>  
   );
 };
 

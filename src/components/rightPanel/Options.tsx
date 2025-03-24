@@ -53,7 +53,6 @@ const Options = ({ noteData,
     await updateNote(noteData!.id, updatedNote);
     alert(!isArchive ? "Note Successfully Archived!" : "Note Successfully Unarchived!");
     queryClient.invalidateQueries({queryKey: ["notes", category]});
-    queryClient.invalidateQueries({queryKey:["noteData",category, noteData?.id]})
     if (category === "archive") route.push(`/${noteData?.folder.id}/${noteData?.id}`);
     else route.push(`/${category}`);
   };

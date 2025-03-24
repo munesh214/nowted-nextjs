@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { Box, Stack, Typography, Card, CardActionArea, CardContent, Button } from "@mui/material";
@@ -9,7 +8,7 @@ import { FetchNotesParams, Note } from "@/types/types";
 
 const NotesPanel = () => {
     const router = useRouter();
-    const { category }: { category: string } = useParams();
+    const { category, noteId }: { category: string; noteId?: string } = useParams();
     const [allNotes, setAllNotes] = useState<Note[]>([]);
     const [folderName, setFolderName] = useState("Folder Notes");
     const [page, setPage] = useState(1);
@@ -27,7 +26,7 @@ const NotesPanel = () => {
 
     // Fetch notes when category changes
     const { data, isFetching } = useQuery({
-        queryKey: ["notes", category], // Excluding `page` from queryKey
+        queryKey: ["notes", category],
         queryFn: () => fetchNotesByCategory(1),
     });
 
@@ -36,7 +35,7 @@ const NotesPanel = () => {
         if (data) {
             if (data.length > 0) setFolderName(data[0].folder.name);
             setAllNotes(data);
-            setPage(1); // Reset page when category changes
+            setPage(1);
         }
     }, [data, category]);
 
@@ -64,37 +63,41 @@ const NotesPanel = () => {
             </Typography>
 
             <Box sx={{ overflow: "auto" }}>
-                {allNotes.map((note: Note) => (
-                    <Card
-                        key={note.id}
-                        onClick={() => router.push(`/${category}/${note.id}`)}
-                        sx={{
-                            backgroundColor: "grey.800",
-                            color: "white",
-                            borderRadius: "0px",
-                            boxShadow: "none",
-                            "&:hover": { backgroundColor: "grey.700" },
-                            mb: 2,
-                        }}
-                    >
-                        <CardActionArea>
-                            <CardContent>
-                                <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-                                    {note.title}
-                                </Typography>
+                {allNotes.map((note: Note) => {
+                    const isSelected = note.id === noteId; // Check if note is selected
 
-                                <Box display="flex" justifyContent="space-between">
-                                    <Typography variant="body2" color="grey.500">
-                                        {new Date(note.updatedAt).toLocaleDateString()}
+                    return (
+                        <Card
+                            key={note.id}
+                            onClick={() => router.push(`/${category}/${note.id}`)}
+                            sx={{
+                                backgroundColor: isSelected ? "purple" : "grey.800", // Change background if selected
+                                color: "white",
+                                borderRadius: "0px",
+                                boxShadow: "none",
+                                "&:hover": { backgroundColor: isSelected ? "purple" : "grey.700" },
+                                mb: 2,
+                            }}
+                        >
+                            <CardActionArea>
+                                <CardContent>
+                                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                                        {note.title}
                                     </Typography>
-                                    <Typography variant="body2" color="grey.400" noWrap>
-                                        {`${note.preview?.slice(0, 25)}...`}
-                                    </Typography>
-                                </Box>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-                ))}
+
+                                    <Box display="flex" justifyContent="space-between">
+                                        <Typography variant="body2" color="grey.500">
+                                            {new Date(note.updatedAt).toLocaleDateString()}
+                                        </Typography>
+                                        <Typography variant="body2" color="grey.400" noWrap>
+                                            {`${note.preview?.slice(0, 25)}...`}
+                                        </Typography>
+                                    </Box>
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+                    );
+                })}
 
                 {data && data.length === limit && (
                     <Button fullWidth variant="contained" onClick={loadMore} sx={{ mt: 2 }}>

@@ -99,7 +99,7 @@ const Folders = () => {
           {data?.map((folder: { id: string; name: string }) => (
             <ListItemButton
               key={folder.id}
-              sx={{ paddingX: "20px", paddingY: "4px", display: "flex", alignItems: "center", gap: 2 }}
+              sx={{ paddingX: "20px", paddingY: "4px", display: "flex", alignItems: "center", gap: 2,bgcolor: category === folder.id ? "secondary.main" : "transparent" }}
               onClick={() => router.push(`/${folder.id}`)}
               onDoubleClick={() => handleDoubleClick(folder.id, folder.name)}
             >

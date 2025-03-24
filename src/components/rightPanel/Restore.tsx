@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getNoteById, restoreNote } from "@/services/notes.api";
 
 
-const Restore = ({setIsDeleted}:{setIsDeleted: React.Dispatch<React.SetStateAction<boolean>>}) => {
+const Restore = ({setIsDeleted}:{setIsDeleted?: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const { noteId }: { noteId: string } = useParams();
     const router = useRouter();
     const queryClient = useQueryClient();
