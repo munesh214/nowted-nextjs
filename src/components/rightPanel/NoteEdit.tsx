@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getNoteById, updateNote } from "@/services/notes.api"; // Ensure you have an API function to update the note
 import { RefetchNotesContext } from "@/context/RefetchNotesContext";
+import Restore from "./Restore";
 // Styled Title Field
 const CustomTextField = styled(TextField)({
   width: "100%",
@@ -61,11 +62,11 @@ const NoteEdit = () => {
   const { data: noteData, isPending } = useQuery({
     queryKey: ["noteData", category,noteId],
     queryFn: () => getNoteById(noteId),
-    staleTime: 1000 * 60 * 5,
   });
 
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
+  const [isDeleted, setIsDeleted] = useState<boolean>(noteData?.deletedAt === null)
 
   // Sync state when data is fetched
   useEffect(() => {
@@ -76,6 +77,7 @@ const NoteEdit = () => {
   }, [noteData]);
 
   if (isPending) return <p>Loading...</p>;
+  if(isDeleted) return <Restore /> 
 
   // 🔹 Debounced update function
   const handleUpdate = (updatedTitle: string, updatedContent: string) => {
@@ -117,7 +119,7 @@ const NoteEdit = () => {
           variant="standard"
           size="small"
         />
-        <Options noteData={noteData} noteTitle={noteTitle} noteContent={noteContent} />
+        <Options noteData={noteData} noteTitle={noteTitle} noteContent={noteContent} changeDlt={setIsDeleted} />
       </Box>
 
       <NoteDetails noteData={noteData} />

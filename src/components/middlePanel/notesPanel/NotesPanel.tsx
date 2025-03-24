@@ -12,8 +12,10 @@ const NotesPanel = () => {
     const router = useRouter();
     const { category }: { category: string } = useParams();
     const [page, setPage] = useState(1);
+    const [folderName,setFolderName] = useState("Folder Notes");
     const [allNotes, setAllNotes] = useState<Note[]>([]); // Store all notes
     const limit = 10;
+
 
     // Function to fetch notes
     const fetchNotesByCategory = async (pageParam: number) => {
@@ -34,6 +36,7 @@ const NotesPanel = () => {
     // Update allNotes state when new data is fetched
     useEffect(() => {
         if (data) {
+            if(data.length > 0) setFolderName(data[0].folder.name);
             setAllNotes((prevNotes) =>page === 1 ? data : [...prevNotes, ...data]); // Append new notes
         }
 
@@ -46,15 +49,15 @@ const NotesPanel = () => {
     };
 
     return (
-        <Stack height="100vh" sx={{ overflow: "auto" }} padding="20px" gap={1.5}>
-            <Typography variant="h6" fontWeight={600} pt="10px" color="white">
+        <Stack height="100vh" sx={{ overflow: "auto" }} padding="20px" gap={3}>
+            <Typography variant="h4" fontWeight={600} pt="10px" color="white">
                 {category === "favorite"
                     ? "Favorite Notes"
                     : category === "archive"
                         ? "Archived Notes"
                         : category === "trash"
                             ? "Trash"
-                            : "Folder Notes"}
+                            : folderName}
             </Typography>
 
             <Box sx={{ overflow: "auto" }}>
@@ -68,7 +71,7 @@ const NotesPanel = () => {
                             borderRadius: "0px",
                             boxShadow: "none",
                             "&:hover": { backgroundColor: "grey.700" },
-                            mb: 1,
+                            mb: 2,
                         }}
                     >
                         <CardActionArea>

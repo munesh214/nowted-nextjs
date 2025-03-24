@@ -24,7 +24,7 @@ export const getNotes = async (params: FetchNotesParams):Promise<Note[]> => {
 
 export const createNote = async (params: CreateAndUpdateNoteParams):Promise<CreateNoteResponse> => {
   try {
-    const response = await apiClient.post("/notes", { params });
+    const response = await apiClient.post("/notes", params);
     return response.data;
   } catch (error) {
     console.error(error);
