@@ -10,7 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 
 const Folders = () => {
   const router = useRouter();
-  const {category} = useParams();
+  const { category } = useParams();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const queryClient = useQueryClient();
 
@@ -27,7 +27,7 @@ const Folders = () => {
     if (data && data.length > 0 && !category) {
       router.push(`/${data[0].id}`);
     }
-  }, [data, router,category]);
+  }, [data, router, category]);
 
   // Mutation for creating a new folder
   const createFolderMutation = useMutation({
@@ -46,7 +46,7 @@ const Folders = () => {
     onSuccess: () => {
       setEditingFolderId(null); // Exit edit mode
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({queryKey:["notes",category]}) // Refetch folders
+      queryClient.invalidateQueries({ queryKey: ["notes", category] }) // Refetch folders
     },
     onError: (error) => {
       console.error("Failed to rename folder:", error);
@@ -58,10 +58,10 @@ const Folders = () => {
     mutationFn: (id: string) => deleteFolder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] }); // Refetch folders after deletion
-      setTimeout(()=>{
+      setTimeout(() => {
         router.push(`/`);
-      },200)
-      
+      }, 200)
+
     },
     onError: (error) => {
       console.error("Failed to delete folder:", error);
@@ -104,7 +104,12 @@ const Folders = () => {
           {data?.map((folder: { id: string; name: string }) => (
             <ListItemButton
               key={folder.id}
-              sx={{ paddingX: "20px", paddingY: "4px", display: "flex", alignItems: "center", gap: 2,bgcolor: category === folder.id ? "secondary.main" : "transparent" }}
+              sx={{
+                paddingX: "20px", paddingY: "4px", display: "flex", alignItems: "center", gap: 2, "&:hover": {
+                  borderRadius: "0",
+                  backgroundColor: "secondary.main",
+                }, bgcolor: category === folder.id ? "secondary.main" : "transparent"
+              }}
               onClick={() => router.push(`/${folder.id}`)}
               onDoubleClick={() => handleDoubleClick(folder.id, folder.name)}
             >
@@ -113,11 +118,12 @@ const Folders = () => {
               {editingFolderId === folder.id ? (
                 <TextField
                   inputRef={inputRef}
+                  fullWidth
                   variant="outlined"
                   size="small"
                   value={folderNames[folder.id] || folder.name}
                   onChange={(e) =>
-                    setFolderNames((prev) => ({ ...prev, [folder.id]: e.target.value }))
+                    setFolderNames(() => ({[folder.id]: e.target.value }))
                   }
                   onBlur={() => handleRenameSubmit(folder.id)}
                   onKeyDown={(e) => e.key === "Enter" && handleRenameSubmit(folder.id)}
