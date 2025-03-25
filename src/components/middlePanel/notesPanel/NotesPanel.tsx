@@ -99,7 +99,7 @@ const NotesPanel = () => {
                 })}
 
                 {data && data.length === limit && (
-                    <Button fullWidth variant="contained" onClick={loadMore} sx={{ mt: 2 }}>
+                    <Button color="secondary" fullWidth variant="contained" onClick={loadMore} sx={{ mt: 2 }}>
                         {isFetching ? "Loading..." : "Load More"}
                     </Button>
                 )}
