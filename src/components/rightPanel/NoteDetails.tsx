@@ -8,7 +8,9 @@ import { fetchFolders } from "@/services/folders.api";
 import { updateNote } from "@/services/notes.api";
 import { useParams, useRouter } from "next/navigation";
 
-const NoteDetails = ({ noteData }: { noteData?: Note }) => {
+const NoteDetails = ({ noteData,
+  noteTitle,
+  noteContent}: { noteData: Note | undefined, noteTitle: string, noteContent: string}) => {
     const { noteId,category } = useParams();
     const router = useRouter();
     const [selectedFolder, setSelectedFolder] = useState<string>("");
@@ -42,8 +44,8 @@ const NoteDetails = ({ noteData }: { noteData?: Note }) => {
 
         const noteDataPayload: CreateAndUpdateNoteParams = {
             folderId: selectedValue,
-            title: noteData.title,
-            content: noteData.content,
+            title: noteTitle,
+            content: noteContent,
             isFavorite: noteData.isFavorite,
             isArchived: noteData.isArchived,
         };

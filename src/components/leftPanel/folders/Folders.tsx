@@ -58,6 +58,10 @@ const Folders = () => {
     mutationFn: (id: string) => deleteFolder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] }); // Refetch folders after deletion
+      setTimeout(()=>{
+        router.push(`/`);
+      },200)
+      
     },
     onError: (error) => {
       console.error("Failed to delete folder:", error);

@@ -112,7 +112,7 @@ const NoteEdit = () => {
         <Options noteData={noteData} noteTitle={noteTitle} noteContent={noteContent} changeDlt={setIsDeleted} />
       </Box>
 
-      <NoteDetails noteData={noteData} />
+      <NoteDetails noteData={noteData} noteTitle={noteTitle} noteContent={noteContent} />
 
       <Box flexGrow={1} width="100%" display="flex">
         <CustomTextArea

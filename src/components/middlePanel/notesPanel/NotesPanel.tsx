@@ -10,7 +10,7 @@ const NotesPanel = () => {
     const router = useRouter();
     const { category, noteId }: { category: string; noteId?: string } = useParams();
     const [allNotes, setAllNotes] = useState<Note[]>([]);
-    const [folderName, setFolderName] = useState("Folder Notes");
+    const [folderName, setFolderName] = useState("No Notes in this folder!");
     const [page, setPage] = useState(1);
     const limit = 10;
 
