@@ -41,11 +41,10 @@ const NotesPanel = () => {
 
     const loadMore = async () => {
         if (!isFetching) {
-            const nextPage = page + 1;
-            const newNotes = await fetchNotesByCategory(nextPage);
+            const newNotes = await fetchNotesByCategory(page+1);
             if (newNotes.length > 0) {
                 setAllNotes((prevNotes) => [...prevNotes, ...newNotes]);
-                setPage(nextPage);
+                setPage(page+1);
             }
         }
     };

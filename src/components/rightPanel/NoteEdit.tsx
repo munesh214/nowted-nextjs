@@ -11,7 +11,7 @@ import { getNoteById, updateNote } from "@/services/notes.api";
 import { useQueryClient } from "@tanstack/react-query";
 import Restore from "./Restore";
 
-// Styled Title Field
+// Styled TitleField
 const CustomTextField = styled(TextField)({
   width: "100%",
   "& .MuiInputBase-input": {
@@ -28,34 +28,20 @@ const CustomTextField = styled(TextField)({
   },
 });
 
-// Styled Text Area
+// Styled Input
 const CustomTextArea = styled(Input)({
-  width: "100%",
-  flexGrow: 1,
-  display: "flex",
-  overflow: "hidden",
-  "& .MuiInputBase-root": {
-    backgroundColor: "transparent",
-    display: "flex",
-    flexGrow: 1,
-    alignItems: "start",
-    overflow: "auto",
-  },
   "& .MuiInputBase-input": {
     color: "white",
     fontSize: "18px",
     fontWeight: 400,
     height: "100% !important",
-    maxHeight: "100%",
     overflow: "auto",
   },
   "& .MuiInput-underline:before, & .MuiInput-underline:hover:not(.Mui-disabled):before": {
-    borderBottom: "none",
   },
 });
 
 const NoteEdit = () => {
-  // const context = useContext(RefetchNotesContext);
   const queryClient = useQueryClient();
   const { noteId,category }: { noteId: string , category:string} = useParams();
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -119,6 +105,7 @@ const NoteEdit = () => {
         <CustomTextField
           value={noteTitle}
           onChange={handleTitleChange}
+          color="secondary"
           variant="standard"
           size="small"
         />
@@ -129,11 +116,12 @@ const NoteEdit = () => {
 
       <Box flexGrow={1} width="100%" display="flex">
         <CustomTextArea
-          // variant="standard"
-          size="small"
           multiline
-          value={noteContent}
+          defaultValue={noteContent}
+          rows={1}
           onChange={handleContentChange}
+          disableUnderline
+          fullWidth
         />
       </Box>
     </Stack>  
