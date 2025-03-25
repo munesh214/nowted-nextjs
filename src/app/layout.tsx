@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import nowtedTheme from "@/theme/theme";
 
-import { RefetchNotesProvider } from "@/context/RefetchNotesContext";
+
 
 const queryClient = new QueryClient();
 
@@ -38,12 +38,11 @@ function RootLayout({
         <ThemeProvider theme={nowtedTheme}>
           <CssBaseline />
           <QueryClientProvider client={queryClient}>
-            <RefetchNotesProvider>
+
               <Stack direction="row" width="100vw" height="100vh" bgcolor="custom.main">
                 <LeftPanel />
                 {children}
               </Stack>
-            </RefetchNotesProvider>
           </QueryClientProvider>
         </ThemeProvider>
       </body>

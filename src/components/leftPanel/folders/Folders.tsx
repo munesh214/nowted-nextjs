@@ -45,7 +45,8 @@ const Folders = () => {
     mutationFn: ({ id, name }: { id: string; name: string }) => updateFolder(id, { name }),
     onSuccess: () => {
       setEditingFolderId(null); // Exit edit mode
-      queryClient.invalidateQueries({ queryKey: ["folders"] }); // Refetch folders
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+      queryClient.invalidateQueries({queryKey:["notes",category]}) // Refetch folders
     },
     onError: (error) => {
       console.error("Failed to rename folder:", error);

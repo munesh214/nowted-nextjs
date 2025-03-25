@@ -34,7 +34,7 @@ export interface FetchNotesParams {
 export interface CreateAndUpdateNoteParams {
   folderId: string;
   title: string;
-  content: string;
+  content: string | undefined;
   isFavorite: boolean;
   isArchived: boolean;
 }

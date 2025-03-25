@@ -148,7 +148,7 @@ const SideBarHeader = () => {
                     sx={{bgcolor:"white"}}
                 />
             ) : (
-                <Button variant="contained" color="secondary" onClick={handleCreateNote} sx={{padding:"14px"}}>
+                <Button variant="contained" color="secondary" onClick={handleCreateNote} sx={{padding:"10px"}}>
                     + New Note
                 </Button>
             )}
