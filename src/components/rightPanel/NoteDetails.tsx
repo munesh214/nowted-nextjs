@@ -3,7 +3,7 @@ import { Box, Typography, Divider, Stack, FormControl, Select, MenuItem, SelectC
 import EventIcon from "@mui/icons-material/Event";
 import FolderIcon from "@mui/icons-material/Folder";
 import { CreateAndUpdateNoteParams, Note } from "@/types/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchFolders } from "@/services/folders.api";
 import { updateNote } from "@/services/notes.api";
 import { useParams, useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { useParams, useRouter } from "next/navigation";
 const NoteDetails = ({ noteData,
   noteTitle,
   noteContent}: { noteData: Note | undefined, noteTitle: string, noteContent: string}) => {
+    const queryClient = useQueryClient();
     const { noteId,category } = useParams();
     const router = useRouter();
     const [selectedFolder, setSelectedFolder] = useState<string>("");
@@ -32,7 +33,8 @@ const NoteDetails = ({ noteData,
             updateNote(noteId, noteDataPayload),
         onSuccess: () => {
             alert("Note moved successfully!"); 
-            if(category !== "archive")router.push(`/${selectedFolder}/${noteId}`);
+            queryClient.invalidateQueries({queryKey:["noteData",category, noteId]});
+            if(category !== "archive")setTimeout(()=>router.push(`/${selectedFolder}/${noteId}`),200)
         }
     });
 

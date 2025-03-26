@@ -10,13 +10,13 @@ const NotesPanel = () => {
     const router = useRouter();
     const { category, noteId }: { category: string; noteId?: string } = useParams();
     const [allNotes, setAllNotes] = useState<Note[]>([]);
-    const [folderName, setFolderName] = useState("No Notes in this folder!");
+    const [folderName, setFolderName] = useState("");
     const [page, setPage] = useState(1);
-    const limit = 10;
+    const [hasMore,setHasMore] = useState(true);
 
     // Function to fetch notes
     const fetchNotesByCategory = async (pageParam: number) => {
-        const params: FetchNotesParams = { page: pageParam, limit };
+        const params: FetchNotesParams = { page: pageParam, limit:10 };
         if (category === "favorite") params.favorite = true;
         else if (category === "archive") params.archived = true;
         else if (category === "trash") params.deleted = true;
@@ -33,7 +33,9 @@ const NotesPanel = () => {
     // Manage fetched data
     useEffect(() => {
         if (data) {
+            if(data.length == 0) setFolderName("No Notes in this folder!");
             if (data.length > 0) setFolderName(data[0].folder.name);
+            setHasMore(true)
             setAllNotes(data);
             setPage(1);
         }
@@ -42,6 +44,7 @@ const NotesPanel = () => {
     const loadMore = async () => {
         if (!isFetching) {
             const newNotes = await fetchNotesByCategory(page+1);
+            if(newNotes.length < 10) setHasMore(p=>!p);
             if (newNotes.length > 0) {
                 setAllNotes((prevNotes) => [...prevNotes, ...newNotes]);
                 setPage(page+1);
@@ -98,7 +101,7 @@ const NotesPanel = () => {
                     );
                 })}
 
-                {data && data.length === limit && (
+                {data && data.length === 10 && hasMore && (
                     <Button color="secondary" fullWidth variant="contained" onClick={loadMore} sx={{ mt: 2 }}>
                         {isFetching ? "Loading..." : "Load More"}
                     </Button>
