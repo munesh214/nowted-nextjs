@@ -17,10 +17,21 @@ const NotesPanel = () => {
     // Function to fetch notes
     const fetchNotesByCategory = async (pageParam: number) => {
         const params: FetchNotesParams = { page: pageParam, limit:10 };
-        if (category === "favorite") params.favorite = true;
-        else if (category === "archive") params.archived = true;
-        else if (category === "trash") params.deleted = true;
-        else params.folderId = category;
+        if (category === "favorite"){
+            params.favorite = true ;
+            params.archived = false;
+            params.deleted = false;
+        } 
+        else if (category === "archive"){
+            params.archived = true;
+            params.deleted = false;
+        } 
+        else if (category === "trash")params.deleted = true;
+        else {
+            params.folderId = category ;
+            params.archived = false;
+            params.deleted = false;
+        }
         return getNotes(params);
     };
 

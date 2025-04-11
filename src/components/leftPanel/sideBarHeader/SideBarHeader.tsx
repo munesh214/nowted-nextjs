@@ -23,7 +23,7 @@ const SideBarHeader = () => {
             createNote({
                 folderId,
                 title: "Untitled Note",
-                content: "",
+                content: "Write your content",
                 isFavorite: false,
                 isArchived: false,
             }),
@@ -61,6 +61,8 @@ const SideBarHeader = () => {
                     page: 1,
                     limit: 10,
                     search: searchTerm,
+                    deleted:false,
+                    archived:false
                 };
                 const results: Note[] = await getNotes(params);
                 setSearchResults(results);
